@@ -15,6 +15,7 @@ A modern, high-precision Islamic Prayer Times application built with Flutter.
   - Choose between **Hanafi** and **Shafi/Others** Asr calculation methods.
   - Persistent settings using `shared_preferences`.
 - **Quick Navigation**: "Go to Today" button to quickly jump back to the current day.
+- **Location Picking**: Allow users to select their location manually or via GPS for even more accurate localized prayer times.
 
 ## 🛠️ Technical Stack
 
