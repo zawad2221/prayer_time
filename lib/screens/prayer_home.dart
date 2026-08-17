@@ -64,7 +64,10 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_currentIndex == 0 ? 'Prayer Times' : 'Settings'),
+        title: Text(
+          _currentIndex == 0 ? 'Prayer Times' : 'Settings',
+          style: context.typography.h3,
+        ),
         centerTitle: true,
         backgroundColor: context.colors.bgPrimary,
         actions: _currentIndex == 0
