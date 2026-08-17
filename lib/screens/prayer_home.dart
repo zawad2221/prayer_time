@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:adhan/adhan.dart';
+import 'package:prayer_time/core/extensions/context_extensions.dart';
+import 'package:prayer_time/core/theme/app_spacing.dart';
 import '../services/prayer_service.dart';
 import '../services/settings_service.dart';
 import '../widgets/prayer_card.dart';
@@ -64,7 +66,7 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
       appBar: AppBar(
         title: Text(_currentIndex == 0 ? 'Prayer Times' : 'Settings'),
         centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: context.colors.bgPrimary,
         actions: _currentIndex == 0
             ? [
                 IconButton(
@@ -91,7 +93,10 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
             controller: _pageController,
             itemBuilder: (context, index) {
               final date = _getDateForPage(index);
-              final dayPrayers = PrayerService.getPrayersForDate(date, _currentMadhab);
+              final dayPrayers = PrayerService.getPrayersForDate(
+                date,
+                _currentMadhab,
+              );
               return Center(
                 child: SingleChildScrollView(
                   child: PrayerCard(dayPrayers: dayPrayers),
@@ -107,16 +112,83 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: _onTabTapped,
-        destinations: [
-          NavigationDestination(icon: Icon(Icons.home),
-            label: 'Home',),
-          NavigationDestination( icon: Icon(Icons.settings),
-              label: 'Settings',)
-        ],
-        indicatorColor: ,
+      bottomNavigationBar: ClipRRect(
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.defaultSpacing24),
+        ),
+        child: BottomAppBar(
+          elevation: AppSpacing.defaultSpacing24,
+          color: context.colors.bgPrimary,
+          shadowColor: context.colors.brandPrimary,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              buildNavItem(
+                icon: Icons.home_outlined,
+                iconSelected: Icons.home,
+                label: 'Home',
+                index: 0,
+                context: context,
+              ),
+              buildNavItem(
+                icon: Icons.settings_outlined,
+                iconSelected: Icons.settings,
+                label: 'Settings',
+                index: 1,
+                context: context,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildNavItem({
+    required IconData icon,
+    required IconData iconSelected,
+    required String label,
+    required int index,
+    required BuildContext context,
+  }) {
+    final isSelected = _currentIndex == index;
+
+    return InkWell(
+      onTap: () => setState(() => _currentIndex = index),
+      borderRadius: BorderRadius.circular(AppSpacing.defaultSpacing24),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.defaultSpacing24,
+          vertical: AppSpacing.defaultSpacing4,
+        ),
+        decoration: BoxDecoration(
+          // Background covers BOTH icon and text when selected
+          color: isSelected
+              ? context.colors.secondaryContainer
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppSpacing.defaultSpacing24),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? iconSelected : icon,
+              color: isSelected
+                  ? context.colors.onSecondaryContainer
+                  : context.colors.onSurfaceVariant,
+            ),
+            const SizedBox(height: AppSpacing.defaultSpacing2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? const Color(0xFF0D3B3F) : Colors.grey,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
