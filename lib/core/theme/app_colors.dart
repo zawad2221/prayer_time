@@ -65,6 +65,7 @@ abstract class BaseColors {
   static const Color cardShadowDark = Color(0x3D000000);
 
   static const Color white = Color(0xFFFFFFFF);
+  static const Color brown = Color(0xFFA1824A);
 }
 
 @immutable

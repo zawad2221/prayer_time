@@ -10,8 +10,10 @@ import '../models/prayer_model.dart';
 
 class PrayerCard extends StatelessWidget {
   final DayPrayers dayPrayers;
+  final VoidCallback showNextDay;
+  final VoidCallback showPreviousDay;
 
-  const PrayerCard({super.key, required this.dayPrayers});
+  const PrayerCard({super.key, required this.dayPrayers, required this.showNextDay, required this.showPreviousDay});
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +26,46 @@ class PrayerCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              DateFormat('EEEE, MMMM d, y').format(dayPrayers.date),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios),
+                  iconSize: AppSpacing.defaultSpacing24,
+                  color: context.colors.textPrimary,
+                  onPressed: () {
+                    showPreviousDay();
+                  },
+                ),
+                Column(
+                  children: [
+                    Text(
+                      DateFormat('EEEE, MMM d').format(dayPrayers.date),
+                      style: context.typography.subHead1.copyWith(
+                        fontSize: AppSpacing.defaultSpacing24,
+                      ),
+                    ),
+                    if (dayPrayers.prayers.any(
+                      (value) => value.status == PrayerStatus.current,
+                    ))
+                      Text(
+                        "TODAY'S SCHEDULE",
+                        style: context.typography.subHead1.copyWith(
+                          fontSize: AppSpacing.defaultSpacing12,
+                          color: BaseColors.brown,
+                        ),
+                      ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward_ios),
+                  iconSize: AppSpacing.defaultSpacing24,
+                  color: context.colors.textPrimary,
+                  onPressed: () {
+                    showNextDay();
+                  },
+                ),
+              ],
             ),
             const Divider(height: 32),
             ...dayPrayers.prayers.map(
@@ -108,8 +144,13 @@ class PrayerCard extends StatelessWidget {
 
 class PrayerHeroCard extends StatefulWidget {
   final PrayerTimeModel _nextPrayerTimeModel;
+  final VoidCallback _onTimerComplete;
 
-  const PrayerHeroCard({super.key, required this._nextPrayerTimeModel});
+  const PrayerHeroCard({
+    super.key,
+    required this._nextPrayerTimeModel,
+    required this._onTimerComplete,
+  });
 
   @override
   State<PrayerHeroCard> createState() => _PrayerHeroCardState();
@@ -123,9 +164,24 @@ class _PrayerHeroCardState extends State<PrayerHeroCard> {
   void initState() {
     super.initState();
     _updateCountdown();
+    _startTimer();
+  }
+
+  void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       _updateCountdown();
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant PrayerHeroCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget._nextPrayerTimeModel.time !=
+        oldWidget._nextPrayerTimeModel.time) {
+      _timer.cancel();
+      _updateCountdown();
+      _startTimer();
+    }
   }
 
   @override
@@ -140,6 +196,7 @@ class _PrayerHeroCardState extends State<PrayerHeroCard> {
       if (_remaining.isNegative) {
         _remaining = Duration.zero;
         _timer.cancel();
+        widget._onTimerComplete();
       }
     });
   }

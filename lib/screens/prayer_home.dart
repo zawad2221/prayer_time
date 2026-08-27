@@ -16,12 +16,11 @@ class PrayerHomeScreen extends StatefulWidget {
 }
 
 class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
-  late final PageController _pageController;
   final int _initialPage = 10000; // Use a large number to allow swiping back
   Madhab _currentMadhab = Madhab.hanafi;
   int _currentIndex = 0;
 
-  final DateTime _initialDate = DateTime.now();
+  late DateTime _initialDate;
   late DateTime _selectedDate;
   late DayPrayers _dayPrayers;
   late DayPrayers _todayPrayers;
@@ -35,6 +34,7 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
   }
 
   void initDate() {
+    _initialDate = DateTime.now();
     _selectedDate = _initialDate;
     _todayPrayers = PrayerService.getPrayersForDate(
       _initialDate,
@@ -48,7 +48,40 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
       _selectedDate,
       _currentMadhab,
     );
-    _pageController = PageController(initialPage: _initialPage);
+  }
+
+  void showNextOrPreviousDay(bool nextDay) {
+    if (nextDay) {
+      _selectedDate = _selectedDate.add(Duration(days: 1));
+    } else {
+      _selectedDate = _selectedDate.subtract(Duration(days: 1));
+    }
+    _dayPrayers = PrayerService.getPrayersForDate(
+      _selectedDate,
+      _currentMadhab,
+    );
+  }
+
+  void resetDate() {
+    _selectedDate = _initialDate;
+    _dayPrayers = PrayerService.getPrayersForDate(
+      _selectedDate,
+      _currentMadhab,
+    );
+  }
+
+  void refreshHeroCardDate() {
+    if (DateTime.now() != _initialDate) {
+      _initialDate = DateTime.now();
+    }
+    _todayPrayers = PrayerService.getPrayersForDate(
+      _initialDate,
+      _currentMadhab,
+    );
+    _tomorrowPrayers = PrayerService.getPrayersForDate(
+      _initialDate.add(Duration(days: 1)),
+      _currentMadhab,
+    );
   }
 
   Future<void> _loadSettings() async {
@@ -66,7 +99,6 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
 
   @override
   void dispose() {
-    _pageController.dispose();
     super.dispose();
   }
 
@@ -94,19 +126,16 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
         ),
         centerTitle: true,
         backgroundColor: context.colors.bgPrimary,
-        actions: _currentIndex == 0
+        actions: (_currentIndex == 0 && _selectedDate != _initialDate)
             ? [
                 IconButton(
-                  icon: const Icon(Icons.today),
+                  icon: const Icon(Icons.refresh),
                   tooltip: 'Go to Today',
                   onPressed: () {
-                    if (_pageController.hasClients) {
-                      _pageController.animateToPage(
-                        _initialPage,
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
-                      );
-                    }
+                    setState(() {
+                      resetDate();
+
+                    });
                   },
                 ),
               ]
@@ -169,12 +198,29 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
                 (value) => value.status == PrayerStatus.next,
               ),
             ),
+            onTimerComplete: () {
+              setState(() {
+                refreshHeroCardDate();
+              });
+            },
           ),
 
           //prayer time pager
           Center(
             child: SingleChildScrollView(
-              child: PrayerCard(dayPrayers: _dayPrayers),
+              child: PrayerCard(
+                dayPrayers: _dayPrayers,
+                showNextDay: () {
+                  setState(() {
+                    showNextOrPreviousDay(true);
+                  });
+                },
+                showPreviousDay: () {
+                  setState(() {
+                    showNextOrPreviousDay(false);
+                  });
+                },
+              ),
             ),
           ),
         ],
