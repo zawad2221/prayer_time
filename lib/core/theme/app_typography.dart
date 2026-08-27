@@ -117,13 +117,13 @@ abstract class AppDefaultTypography {
   static const TitleHeader = TextStyle(
     fontFamily: _fontFamily,
     fontSize: AppSpacing.defaultSpacing32,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w700,
   );
 
   static const H1 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: AppSpacing.defaultSpacing32,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
   );
   static const SubHead1 = TextStyle(
     fontFamily: _fontFamily,
