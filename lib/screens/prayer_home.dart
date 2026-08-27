@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:adhan/adhan.dart';
 import 'package:prayer_time/core/extensions/context_extensions.dart';
 import 'package:prayer_time/core/theme/app_spacing.dart';
+import 'package:prayer_time/models/prayer_model.dart';
 import '../services/prayer_service.dart';
 import '../services/settings_service.dart';
 import '../widgets/prayer_card.dart';
@@ -20,11 +21,34 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
   Madhab _currentMadhab = Madhab.hanafi;
   int _currentIndex = 0;
 
+  final DateTime _initialDate = DateTime.now();
+  late DateTime _selectedDate;
+  late DayPrayers _dayPrayers;
+  late DayPrayers _todayPrayers;
+  late DayPrayers _tomorrowPrayers;
+
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _initialPage);
+    initDate();
     _loadSettings();
+  }
+
+  void initDate() {
+    _selectedDate = _initialDate;
+    _todayPrayers = PrayerService.getPrayersForDate(
+      _initialDate,
+      _currentMadhab,
+    );
+    _tomorrowPrayers = PrayerService.getPrayersForDate(
+      _initialDate.add(Duration(days: 1)),
+      _currentMadhab,
+    );
+    _dayPrayers = PrayerService.getPrayersForDate(
+      _selectedDate,
+      _currentMadhab,
+    );
+    _pageController = PageController(initialPage: _initialPage);
   }
 
   Future<void> _loadSettings() async {
@@ -92,21 +116,7 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
         index: _currentIndex,
         children: [
           // Home View
-          PageView.builder(
-            controller: _pageController,
-            itemBuilder: (context, index) {
-              final date = _getDateForPage(index);
-              final dayPrayers = PrayerService.getPrayersForDate(
-                date,
-                _currentMadhab,
-              );
-              return Center(
-                child: SingleChildScrollView(
-                  child: PrayerCard(dayPrayers: dayPrayers),
-                ),
-              );
-            },
-          ),
+          _landingView(),
           // Settings View
           SettingsView(
             onSettingsChanged: () {
@@ -143,6 +153,31 @@ class _PrayerHomeScreenState extends State<PrayerHomeScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _landingView() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // top hero card
+          PrayerHeroCard(
+            nextPrayerTimeModel: _todayPrayers.prayers.firstWhere(
+              (value) => value.status == PrayerStatus.next,
+              orElse: () => _tomorrowPrayers.prayers.firstWhere(
+                (value) => value.status == PrayerStatus.next,
+              ),
+            ),
+          ),
+
+          //prayer time pager
+          Center(
+            child: SingleChildScrollView(
+              child: PrayerCard(dayPrayers: _dayPrayers),
+            ),
+          ),
+        ],
       ),
     );
   }

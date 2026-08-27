@@ -5,6 +5,7 @@ abstract class BaseColors {
   static const Color primary = Color(0xFF0D3B3F);
   static const Color light = Color(0xFF137D70);
   static const Color goldAccent = Color(0xFFD4A359);
+  static const Color transparent = Colors.transparent;
 
   // Champagne Gold Scale
   static const Color champagneGold100 = Color(0xFFE9C176);
@@ -62,6 +63,8 @@ abstract class BaseColors {
   // Neutral Card Overlays / Shadows
   static const Color cardShadowLight = Color(0x0F000000);
   static const Color cardShadowDark = Color(0x3D000000);
+
+  static const Color white = Color(0xFFFFFFFF);
 }
 
 @immutable
@@ -77,6 +80,8 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color onSecondaryContainer;
   final Color onSurfaceVariant;
   final Color brandPrimary;
+  final Color transparent;
+  final Color white;
 
   const AppColors({
     required this.bgPrimary,
@@ -90,6 +95,8 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.onSecondaryContainer,
     required this.onSurfaceVariant,
     required this.brandPrimary,
+    required this.transparent,
+    required this.white
   });
 
   // Light Theme Color Mapping
@@ -104,7 +111,9 @@ class AppColors extends ThemeExtension<AppColors> {
     secondaryContainer: BaseColors.champagneGold100,
     onSecondaryContainer: BaseColors.deepBronze100,
     onSurfaceVariant: BaseColors.slate100,
-    brandPrimary: BaseColors.primary
+    brandPrimary: BaseColors.primary,
+    transparent: BaseColors.transparent,
+    white: BaseColors.white
   );
 
   // Dark Theme Color Mapping
@@ -119,7 +128,9 @@ class AppColors extends ThemeExtension<AppColors> {
     secondaryContainer: BaseColors.champagneGold20,
     onSecondaryContainer: BaseColors.champagneGold100,
     onSurfaceVariant: BaseColors.silver100,
-    brandPrimary: BaseColors.primary
+    brandPrimary: BaseColors.primary,
+    transparent: BaseColors.transparent,
+    white: BaseColors.white
   );
 
   @override
@@ -135,6 +146,8 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? onSecondaryContainer,
     Color? onSurfaceVariant,
     Color? brandPrimary,
+    Color? transparent,
+    Color? white
   }) {
     return AppColors(
       bgPrimary: bgPrimary ?? this.bgPrimary,
@@ -147,7 +160,9 @@ class AppColors extends ThemeExtension<AppColors> {
       secondaryContainer: secondaryContainer ?? this.secondaryContainer,
       onSecondaryContainer: onSecondaryContainer ?? this.onSecondaryContainer,
       onSurfaceVariant: onSurfaceVariant ?? this.onSurfaceVariant,
-      brandPrimary: brandPrimary ?? this.brandPrimary
+      brandPrimary: brandPrimary ?? this.brandPrimary,
+      transparent: transparent ?? this.transparent,
+      white: white ?? this.white,
     );
   }
 
@@ -164,10 +179,24 @@ class AppColors extends ThemeExtension<AppColors> {
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       brandAccent: Color.lerp(brandAccent, other.brandAccent, t)!,
       badgeGold: Color.lerp(badgeGold, other.badgeGold, t)!,
-      secondaryContainer: Color.lerp(secondaryContainer, other.secondaryContainer, t)!,
-      onSecondaryContainer: Color.lerp(onSecondaryContainer, other.onSecondaryContainer, t)!,
-      onSurfaceVariant: Color.lerp(onSurfaceVariant, other.onSurfaceVariant, t)!,
-      brandPrimary: Color.lerp(brandPrimary, other.brandPrimary, t)!
+      secondaryContainer: Color.lerp(
+        secondaryContainer,
+        other.secondaryContainer,
+        t,
+      )!,
+      onSecondaryContainer: Color.lerp(
+        onSecondaryContainer,
+        other.onSecondaryContainer,
+        t,
+      )!,
+      onSurfaceVariant: Color.lerp(
+        onSurfaceVariant,
+        other.onSurfaceVariant,
+        t,
+      )!,
+      brandPrimary: Color.lerp(brandPrimary, other.brandPrimary, t)!,
+      transparent: Color.lerp(transparent, other.transparent, t)!,
+      white: Color.lerp(white, other.white, t)!,
     );
   }
 }

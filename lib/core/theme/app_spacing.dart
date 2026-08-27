@@ -1,4 +1,5 @@
 abstract class AppSpacing {
+  static const double defaultSpacing0 = 0;
   static const double defaultSpacing1 = 1.0;
   static const double defaultSpacing2 = 2.0;
   static const double defaultSpacing4 = 4.0;
